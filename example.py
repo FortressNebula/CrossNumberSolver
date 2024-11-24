@@ -1,11 +1,16 @@
 from cluesolver import *
 
 # for an example, this is puzzle S implemented 
-# obviously in reality this wouldnt work since the possible clues havent been specified in the Puzzle class, you'd need to do this yourself for your clues
-
 squares = [1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256, 289, 324, 361, 400, 441, 484, 529, 576, 625, 676, 729, 784, 841, 900, 961]
 
 S = Puzzle()
+S.add_clue('1ac', 3)
+S.add_clue('1dn', 3)
+S.add_clue('2dn', 2)
+S.add_clue('3ac', 2)
+S.add_clue('4dn', 2)
+S.add_clue('5ac', 3)
+
 S.solve_order = ['4dn', '3ac', '2dn', '1ac', '1dn', '5ac']
 
 S.clues['4dn'] = FixedClue([10, 15, 21, 28, 36, 45, 55, 66, 78, 91])

@@ -139,9 +139,6 @@ class TripletTertiaryClue(Clue):
 class Puzzle:
     def __init__(self):
         # clues
-        # change this list based on what clues are in your puzzle
-        # format is
-        # 'clue name' : OpenClue(how many digits the clue is)
         self.clues = {
             
         }
@@ -149,6 +146,11 @@ class Puzzle:
         # this is important because if a clue is dependent on others (e.g. 5ac is equal to digit sum of 1dn) then it must be solved after
         # this must be specified manually 
         self.solve_order = []
+    
+    # use this to register new clues
+    # dont change the function, simply call it
+    def add_clue(self, name, length):
+        self.clues[name] = OpenClue(length)
     
     # dont change this
     def get_current_clue(self, solution_set: dict):
