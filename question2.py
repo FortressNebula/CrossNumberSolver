@@ -1,6 +1,8 @@
 from functools import *
 from math import *
 
+log_file = open('log_copy2.txt', 'wt')
+
 def get_digit(x, digit):
     return str(x)[digit]
 
@@ -163,6 +165,38 @@ class Puzzle:
                 return clue
         return 'NONE'
 
+    def final_constraints(self, solution_set):
+        ac6 = int_get_digit(solution_set['1dn'], 1)*100 + int_get_digit(solution_set['7dn'], 0) * 10 + int_get_digit(solution_set['2dn'], 1)
+        ac8 = int_get_digit(solution_set['5dn'], 1) + int_get_digit(solution_set['9dn'], 0) * 10 + int_get_digit(solution_set['3dn'], 1)*100
+        
+        if ac6 < 100 or ac8 < 100:
+            return False
+        
+        solution_set['6ac'] = ac6
+        solution_set['8ac'] = ac8
+        answers = list(solution_set.values())
+        
+        # ensure there are no duplicate answers
+        invalid = False
+        for i, a in enumerate(answers):
+            for j, b in enumerate(answers):
+                if i != j and a == b:
+                    return False
+
+        perimeter = solution_set['1ac'] + solution_set['2ac'] + solution_set['4ac']
+
+        # ensure some two answers differ by the perimeter
+        #print(perimeter)
+        #print(solution_set)
+        for a in answers:
+            for b in answers:
+                #if abs(perimeter - abs(a-b)) < 10:
+                #    print(perimeter-abs(a-b))
+                if abs(a - b) == perimeter:
+                    return True
+        
+        return False
+
     def solve(self):
         if len(self.solve_order) != len(self.clues.keys()):
             raise ValueError("Solving order must be assigned!")
@@ -174,48 +208,16 @@ class Puzzle:
 
         while len(stack) > 0:
             solution_set = stack.pop()
+            log_file.write(str(solution_set))
             current_clue = self.get_current_clue(solution_set)
+            log_file.write(', solving for ' + current_clue)
 
             if current_clue == 'NONE':
                 # we made it to the end of a tree branch without hitting a contradiction, we made it! 
                 # sanitise
-                ac6 = int_get_digit(solution_set['1dn'], 1)*100 + int_get_digit(solution_set['7dn'], 0) * 10 + int_get_digit(solution_set['2dn'], 1)
-                ac8 = int_get_digit(solution_set['5dn'], 1) + int_get_digit(solution_set['9dn'], 0) * 10 + int_get_digit(solution_set['3dn'], 1)*100
-                
-                if ac6 < 100 or ac8 < 100:
-                    continue
-                
-                solution_set['6ac'] = ac6
-                solution_set['8ac'] = ac8
-                answers = list(solution_set.values())
-                
-                # ensure there are no duplicate answers
-                invalid = False
-                for i, a in enumerate(answers):
-                    for j, b in enumerate(answers):
-                        if i != j and a == b:
-                            invalid = True
-                            break
-                    if invalid:
-                        break
-                if invalid:
-                    continue
-
-                perimeter = solution_set['1ac'] + solution_set['2ac'] + solution_set['4ac']
-
-                # ensure some two answers differ by the perimeter
-                print(perimeter)
-                print(solution_set)
-                for a in answers:
-                    found = False
-                    for b in answers:
-                        if abs(perimeter - abs(a-b)) < 10:
-                            print(perimeter-abs(a-b))
-                        if abs(a - b) == perimeter:
-                            print(solution_set)
-                            found = True
-                            break
-                    if found: break
+                if self.final_constraints(solution_set):
+                    print(solution_set)
+                    log_file.write(' VALID OMGGG')
                 continue
             
             # using the clue, get a list of possible values for the clue.
@@ -223,13 +225,20 @@ class Puzzle:
             possible_values_for_clue = list(dict.fromkeys(possible_values_for_clue))
 
             # cull possibilities
+            og_length = len(possible_values_for_clue)
             possible_values_for_clue = list(filter(lambda x : check_clue(current_clue, x, solution_set), possible_values_for_clue))
+
+            if possible_values_for_clue == []:
+                log_file.write(' - STOPPED')
+                if og_length != len(possible_values_for_clue):
+                    log_file.write(' BECAUSE OF DIGITS')
 
             for value in possible_values_for_clue:
                 # add the child node
                 new_set = solution_set.copy()
                 new_set[current_clue] = value
                 stack.append(new_set)
+            log_file.write('\n')
 
 Q2 = Puzzle()
 Q2.solve_order = ['1ac', '2ac', '4ac', '10dn', '12dn', '11ac', '5dn', '9dn', '14ac', '1dn', '7dn', '13ac', '2dn', '3dn']
@@ -265,6 +274,7 @@ Q2.clues['3dn'] = TransformativeClue(clue_3dn)
 #print(len(primitive_beefy_triplets))
 Q2.solve()
 
+log_file.close()
 # WE CANNOT FIND THE UNIQUE SOLUTION
 # - solution checker is wrong?
 #   - i dont think so lmfao
