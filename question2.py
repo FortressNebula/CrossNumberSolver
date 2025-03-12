@@ -275,11 +275,3 @@ Q2.clues['3dn'] = TransformativeClue(clue_3dn)
 Q2.solve()
 
 log_file.close()
-# WE CANNOT FIND THE UNIQUE SOLUTION
-# - solution checker is wrong?
-#   - i dont think so lmfao
-# - we are losing solutions during the DFS search
-#   - clue digit checking?
-#   - clue definitions and possibility accumulation?
-#   - not enough hardcoded values??
-#   - question is just wrong lmfao
